@@ -11,6 +11,7 @@ const props = defineProps<{
   terminus?: boolean
   reverse: boolean
   accessible: boolean | 'undefined' | undefined
+  closed?: boolean
 }>()
 
 const lineContext = inject<LineContext>(LineContextKey)!

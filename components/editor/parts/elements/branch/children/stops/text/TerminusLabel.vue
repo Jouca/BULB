@@ -1,20 +1,18 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-const {
-  value,
-  placeName = null,
-} = defineProps<{
+const props = defineProps<{
   value: string
   placeName?: string | null
+  closed?: boolean
 }>()
 
-const valueParts = computed(() => value.split('\n').filter(part => part.trim() !== ''))
-const placeNameParts = computed(() => placeName?.split('\n').filter(part => part.trim() !== '') ?? [])
+const valueParts = computed(() => props.value.split('\n').filter(part => part.trim() !== ''))
+const placeNameParts = computed(() => props.placeName?.split('\n').filter(part => part.trim() !== '') ?? [])
 </script>
 
 <template>
-  <div class="frame">
+  <div class="frame" :class="{ closed: props.closed }">
     <div v-if="placeNameParts.length > 0" class="place-name-container">
       <Typography v-for="(part, index) in placeNameParts" :key="`${part}-${index}`" class="place-name">
         {{ part }}
@@ -37,6 +35,19 @@ const placeNameParts = computed(() => placeName?.split('\n').filter(part => part
   font-family: 'Parisine Std', sans-serif;
   font-weight: bold;
   width: fit-content;
+
+  &.closed {
+    /* Gris neutre pour arrêt terminus fermé */
+    background-color: #c0c0c0;
+    color: #7c7c7c;
+    /* Retirer le filtre pour garder la netteté du texte */
+    .place-name-container {
+      border-bottom: 1px solid #7d7d7d;
+    }
+    :deep(span) {
+      color: #222;
+    }
+  }
 
   .place-name {
     font-size: .5em;

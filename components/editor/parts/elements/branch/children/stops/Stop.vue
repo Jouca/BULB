@@ -64,6 +64,7 @@ provide<StopContext>(StopContextKey, { margins, namesWidth, inverted })
           :terminus="stop.$stop.terminus"
           :accessible="stop.$stop.accessible"
           :reverse="inverted"
+          :closed="stop.$stop.closed"
           @click="(e: Event) => {
             e.stopPropagation()
             showPropertiesDialog = true

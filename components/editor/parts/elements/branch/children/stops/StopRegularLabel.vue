@@ -10,6 +10,7 @@ const {
   interestPoint = false,
   accessible = 'undefined',
   reverse = false,
+  closed = false,
 } = defineProps<{
   value: string
   preventSubtitleOverlapping: boolean
@@ -18,6 +19,7 @@ const {
   accessible?: boolean | 'undefined' | undefined
   interestPoint?: boolean
   reverse?: boolean
+  closed?: boolean
 }>()
 
 const stopContext = inject<StopContext>(StopContextKey)!
@@ -42,7 +44,7 @@ watch([shift, () => interestPoint, () => subtitle], ([_shift, _interestPoint, _s
 </script>
 
 <template>
-  <div class="regular-label" :class="{ reverse, 'opacity-50 export-hide': valueParts.length === 0 }">
+  <div class="regular-label" :class="{ reverse, 'opacity-50 export-hide': valueParts.length === 0, closed }">
     <div class="flex gap-1em">
       <TiltedText v-for="(part, index) in valueParts" :key="`${part}-${index}`" :reverse="reverse">
         <div class="title-holder">
@@ -80,6 +82,16 @@ watch([shift, () => interestPoint, () => subtitle], ([_shift, _interestPoint, _s
   justify-content: center;
   min-width: 1em;
   height: 0;
+
+  &.closed {
+    filter: grayscale(1) brightness(.8);
+    .title-holder :deep(.title) {
+      color: #c0c0c0 !important;
+    }
+    :deep(span) {
+      color: #c0c0c0 !important;
+    }
+  }
 }
 
 .title-holder {

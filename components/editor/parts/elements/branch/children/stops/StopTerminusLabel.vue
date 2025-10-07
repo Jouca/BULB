@@ -3,30 +3,24 @@ import { useResizeObserver } from '@vueuse/core'
 import { computed, inject, onUnmounted, ref, watch } from 'vue'
 import { StopContextKey } from '~/utils/symbols'
 
-const {
-  value,
-  placeName = '',
-  subtitle = '',
-  interestPoint = false,
-  accessible = 'undefined',
-  reverse = false,
-} = defineProps<{
+const props = defineProps<{
   value: string
   placeName?: string | null
   subtitle?: string | null
   interestPoint?: boolean
   reverse?: boolean
   accessible?: boolean | 'undefined' | undefined
+  closed?: boolean
 }>()
 
 const stopContext = inject<StopContext>(StopContextKey)!
 
-const effectiveValue = computed(() => value.trim())
+const effectiveValue = computed(() => props.value.trim())
 const frame = ref<HTMLDivElement | null>(null)
 const { stop } = useResizeObserver(frame, e => updateMargins(e[0].target as HTMLDivElement))
 watch(stopContext.inverted, () => updateMargins(frame.value!))
 
-watch([() => interestPoint, () => subtitle], ([_interestPoint, _subtitle]) => {
+watch([() => props.interestPoint, () => props.subtitle], ([_interestPoint, _subtitle]) => {
   let margin = 1
   if (_interestPoint) margin += 0.5
 
@@ -39,7 +33,7 @@ watch([() => interestPoint, () => subtitle], ([_interestPoint, _subtitle]) => {
 
 function updateMargins(element: HTMLElement) {
   const size = element.offsetHeight
-  if (reverse) {
+  if (props.reverse) {
     stopContext.margins.rightMargin.name = `calc(${size * 2}px - 1.5em)`
     stopContext.margins.leftMargin.name = '0px'
   } else {
@@ -56,24 +50,24 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="terminus-label" :class="{ reverse }">
-    <TiltedText :reverse="reverse">
+  <div class="terminus-label" :class="{ reverse: props.reverse, closed: props.closed }">
+    <TiltedText :reverse="props.reverse">
       <div ref="frame" class="flex flex-col items-end gap-1" :class="{ 'opacity-50 export-hide': !effectiveValue }">
         <div class="title-holder">
-          <TerminusLabel :value="effectiveValue || $t('ui.map_editor.toolbox.untitled_stop')" :place-name="placeName" />
-          <Wheelchair v-if="accessible !== 'undefined'" :off="!accessible" />
+          <TerminusLabel :value="effectiveValue || $t('ui.map_editor.toolbox.untitled_stop')" :place-name="props.placeName" :closed="props.closed" />
+          <Wheelchair v-if="props.accessible !== 'undefined'" :off="!props.accessible" />
         </div>
-        <StopSubtitle v-if="subtitle && reverse" :interest-point="interestPoint" :value="subtitle" />
+        <StopSubtitle v-if="props.subtitle && props.reverse" :interest-point="props.interestPoint" :value="props.subtitle" />
       </div>
     </TiltedText>
     <TiltedText
-      v-if="subtitle && !reverse"
+      v-if="props.subtitle && !props.reverse"
       class="subtitle-holder"
       :class="{
-        'interest-point': interestPoint,
+        'interest-point': props.interestPoint,
       }"
     >
-      <StopSubtitle :interest-point="interestPoint" :value="subtitle" />
+      <StopSubtitle :interest-point="props.interestPoint" :value="props.subtitle" />
     </TiltedText>
   </div>
 </template>
@@ -90,6 +84,11 @@ onUnmounted(() => {
 
   .reverse & {
     transform: translateY(.125em);
+  }
+
+  &.closed {
+    /* Effet global supplémentaire si souhaité */
+    filter: grayscale(1) brightness(.95);
   }
 }
 
