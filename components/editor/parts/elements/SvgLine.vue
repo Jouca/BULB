@@ -7,11 +7,15 @@ const {
   color,
   lineWidth,
   striped = false,
+  lineCap = 'butt',
+  dashArray = '',
 } = defineProps<{
   path: string
   color: string
   lineWidth: number | string
   striped?: boolean
+  lineCap?: 'butt' | 'round' | 'square'
+  dashArray?: string
 }>()
 
 const roundedPath = computed(() => {
@@ -30,8 +34,9 @@ const roundedPath = computed(() => {
     :stroke="color"
     fill="transparent"
     :stroke-width="`${lineWidth}em`"
-    stroke-cap-round
-    stroke-join-round
+    :stroke-linecap="lineCap"
+    stroke-linejoin="round"
+    v-bind="dashArray ? { 'stroke-dasharray': dashArray } : {}"
   />
   <path
     v-if="striped"
@@ -40,7 +45,8 @@ const roundedPath = computed(() => {
     stroke="white"
     fill="transparent"
     :stroke-width="`calc(${lineWidth}em / 3)`"
-    stroke-cap-round
-    stroke-join-round
+    :stroke-linecap="lineCap"
+    stroke-linejoin="round"
+    v-bind="dashArray ? { 'stroke-dasharray': dashArray } : {}"
   />
 </template>
